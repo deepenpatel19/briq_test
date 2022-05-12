@@ -23,6 +23,9 @@ class HashableModel(models.Model):
 
 
 class Transaction(HashableModel):
+    """
+    This model stores details related to transaction.
+    """
     transaction_id = models.BigAutoField(primary_key=True)
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_CHOICES)
     transaction_date = models.DateField()

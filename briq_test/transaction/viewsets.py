@@ -1,6 +1,4 @@
 from black import out
-from django.forms import IntegerField
-from requests import JSONDecodeError
 from rest_framework import viewsets
 from django.http import JsonResponse
 from briq_test.utils.hash import Hasher
@@ -45,6 +43,9 @@ class TransactionViewSet(viewsets.ViewSet):
     ))
     @action(detail=False, methods=["POST"])
     def add_transaction(self, request, *args, **kwargs):
+        """
+        Add transaction into database.
+        """
         request.data.update({"transaction_from": request.user.id})
         serializer = TransactionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -53,6 +54,9 @@ class TransactionViewSet(viewsets.ViewSet):
 
     @action(detail=True, methods=["PATCH"])
     def mark_paid(self, request, *args, **kwargs):
+        """
+        Particular transaction will be marked as paid.
+        """
         transaction_id_tmp = kwargs.get("pk")
         transaction_id = Hasher.to_object_pk(transaction_id_tmp)
         Transaction.objects.filter(transaction_id=transaction_id).update(transaction_status="paid")
@@ -60,6 +64,9 @@ class TransactionViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["GET"])
     def credit_score(self, request, *args, **kwargs):
+        """
+        Reeturn credit score of the user.
+        """
         amount_borrowed = Transaction.objects.filter(Q(transaction_with=request.user) | Q(transaction_from=request.user)).annotate(total_amount=Sum("transaction_amount")).filter(
             transaction_type="borrow").annotate(total_borrowed=Sum("transaction_amount")).annotate(
                 percentage=Case(
